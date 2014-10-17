@@ -45,7 +45,7 @@
 
 /* Modified by Stephan GARNAUD (ARM) 1992 for Matra Datavision */
 
-#if (!defined (__hpux)) && (!defined (HPUX))
+#if (!defined (__hpux)) && (!defined (HPUX)) && (!defined (EMSCRIPTEN))
 
 #define CLUSTER_NUMBER 4 
 #define SIGUSER SIGUSR1-1
