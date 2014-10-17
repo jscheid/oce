@@ -1322,6 +1322,8 @@ if(MSVC AND OCE_TESTING)
 
 endif(MSVC AND OCE_TESTING)
 
+
+
 ##############
 # Bundle AUTOINSTALL
 ##############
@@ -1478,3 +1480,37 @@ configure_file(
 
 add_custom_target(uninstall
     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+
+list(APPEND OCE_EMCC_INCLUDE_ARGS "-I${CMAKE_CURRENT_BINARY_DIR}/build_inc")
+list(APPEND OCE_EMCC_INCLUDE_ARGS "-I${CMAKE_CURRENT_SOURCE_DIR}/inc")
+
+get_property(dirs DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
+
+foreach(tkit ${modules})
+  foreach(dir ${OCE_${tkit}_INCLUDE_DIRECTORIES})
+    list(APPEND OCE_EMCC_INCLUDE_ARGS "-I${dir}")
+  endforeach()
+endforeach()
+list(REMOVE_DUPLICATES OCE_EMCC_INCLUDE_ARGS)
+
+foreach(library ${OCE_LIBRARIES})
+  GET_TARGET_PROPERTY(suffix ${library} SUFFIX)
+  GET_TARGET_PROPERTY(location ${library} LOCATION)
+  GET_TARGET_PROPERTY(name ${library} NAME)
+  if(NOT ${name} STREQUAL "TKXMesh" )
+    list(APPEND OCE_EMCC_LIBRARY_ARGS "${location}")
+  endif()
+endforeach()
+list(REMOVE_DUPLICATES OCE_EMCC_LIBRARY_ARGS)
+
+
+add_custom_target(emscripten ${CMAKE_COMMAND} -E echo Compiling Emscripten Code)
+
+add_custom_command(TARGET emscripten POST_BUILD
+    COMMAND python $ENV{EMSCRIPTEN}/tools/webidl_binder.py ${CMAKE_SOURCE_DIR}/emscripten/oce.idl glue)
+
+add_custom_command(TARGET emscripten POST_BUILD
+    COMMAND emcc -s LINKABLE=1 -o oce.js -O1 --post-js glue.js -I${CMAKE_BINARY_DIR} ${OCE_EMCC_INCLUDE_ARGS} ${OCE_EMCC_LIBRARY_ARGS} ${CMAKE_SOURCE_DIR}/emscripten/oce_glue_wrapper.cpp)
+
+add_custom_command(TARGET emscripten POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/emscripten/oce.html ${CMAKE_BINARY_DIR}/oce.html)

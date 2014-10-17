@@ -1,0 +1,43 @@
+interface GProp_GProps
+{
+  void GProp_GProps();
+  double Mass();
+};
+
+interface BRepGProp {
+  static void VolumeProperties([Const, Ref] TopoDS_Shape S,
+                               [Ref] GProp_GProps VProps,
+                               [Const] optional boolean OnlyClosed = false);
+
+  /*
+  static double VolumeProperties([Const, Ref] TopoDS_Shape S,
+                                 [Ref] GProp_GProps VProps,
+                                 [Const] double Eps,
+                                 [Const] optional boolean OnlyClosed = false);
+  */
+
+  static double VolumePropertiesGK([Const, Ref] TopoDS_Shape S,
+                                   [Ref] GProp_GProps VProps,
+                                   [Const] optional double Eps = 0.001,
+                                   [Const] optional boolean OnlyClosed = false,
+                                   [Const] optional boolean IsUseSpan = false,
+                                   [Const] optional boolean CGFlag = false,
+                                   [Const] optional boolean IFlag = false);
+};
+
+interface TopoDS_Shape {
+};
+
+interface BRepBuilderAPI_MakeShape {
+  [Const, Ref] TopoDS_Shape Shape();
+  void Build();
+};
+
+interface BRepPrimAPI_MakeOneAxis {
+};
+BRepPrimAPI_MakeOneAxis implements BRepBuilderAPI_MakeShape;
+
+interface BRepPrimAPI_MakeSphere {
+  void BRepPrimAPI_MakeSphere(double r);
+};
+BRepPrimAPI_MakeSphere implements BRepPrimAPI_MakeOneAxis;

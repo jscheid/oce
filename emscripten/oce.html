@@ -1,0 +1,17 @@
+<html>
+<body>
+<script src="oce.js"></script>
+<script>
+
+function test_spheres() {
+
+  prop = new GProp_GProps();
+  for (var i=1; i<10; i++) {
+    my_sphere = new BRepPrimAPI_MakeSphere(i);
+    my_sphere.Build();
+    BRepGProp.prototype.VolumePropertiesGK(my_sphere.Shape(), prop);
+    console.log("Sphere radius=%d volume=%g\n", i, prop.Mass());
+  }
+}
+
+</script>
